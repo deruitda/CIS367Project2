@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lighting</title>
+    <link rel="stylesheet" href="http://www.cis.gvsu.edu/~dulimarh/styles/handout.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono">
+    <script src="webgl-utils.js"></script>
+    <script src="shader-utils.js"></script>
+    <script src="gl-matrix-min.js"></script>
+    <script src="GeometricObject.js"></script>
+    <script src="Cylinder.js"></script>
+    <script src="UniSphere.js"></script>
+    <script src="Torus.js"></script>
+    <script src="Axes.js"></script>
+    <script src="gl-main.js"></script>
+    <script src="Cube.js"></script>
+    <script src="TruncCone.js"></script>
+    <script src="Tree.js"></script>
+    <script src="House.js"></script>
+    <script src="Sphere.js"></script>
+    <script src="Sun.js"></script>
+    <script src="Cone.js"></script>
+
+    <style>
+        html, body {
+            font-family: Droid Sans;
+            font-size: 9pt;
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #intro {
+            top: 0px;
+            margin: 8px;
+            padding: 8px;
+            border: 2px solid burlywood;
+            z-index: 1;
+            background-color: white;
+        }
+        pre {
+            font-family: Droid Sans Mono;
+        }
+        #controls {
+            margin: 8px;
+        }
+        #hidebutton {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+        }
+        #showbutton {
+            position: absolute;
+            right: 8px;
+            z-index: 0;
+        }
+        #vectorcontrol {
+            display: inline-flex;
+            flex-direction: column;
+        }
+        .sliderGroup {
+            border: 1px solid gray;
+            border-radius: 8px;
+            padding: 8px;
+            margin: 4px;
+            display: inline-flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body onload="main()">
+<button type="button" id="showbutton">Show Text</button>
+<div id="intro" hidden>
+    <button type="button" id="hidebutton">Hide Text</button>
+    This example demonstrates:
+    <ul>
+        <li>How to calculate normal vectors of curved objects</li>
+        <li>How to use the glMatrix library functions <code>vec3.normalize()</code> and <code>vec3.cross()</code></li>
+        <li>Lighting calculation in vertex shader</li>
+    </ul>
+    <table align="center" border="0" cellpadding="4" cellspacing="0">
+        <tr>
+            <th>Vertex Shader</th>
+            <th>Fragment Shader</th>
+        </tr>
+        <tr valign="top">
+            <td>
+                <pre id="vscode" class="cppcode" ></pre>
+            </td>
+            <td>
+                <pre id="fscode" class="cppcode" ></pre>
+            </td>
+        </tr>
+
+    </table>
+</div>
+<div id="controls">
+    <div id="vectorcontrol">
+        <span><input id="shownormal" type="checkbox"> Show Normal Vectors</span>
+        <span><input id="showlightvector" type="checkbox"> Show Light Vectors</span>
+        </ul>
+    </div>
+    <div class="sliderGroup">
+        Object Reflection Coefficients
+        <span>Ambient: <input id="amb-coeff" type="range" min="0" max="0.3" step="0.01">
+    <input id="enableAmbient" type="checkbox" checked>
+    </span>
+        <span>Diffuse: <input id="diff-coeff" type="range" min="0" max="1" step="0.01">
+    <input id="enableDiffuse" type="checkbox" checked>
+    </span>
+        <span>Specular: <input id="spec-coeff" type="range" min="0" max="1" step="0.02">
+    <input id="enableSpecular" type="checkbox" checked>
+    </span>
+        <span>Shininess: <input id="spec-shiny" type="range" min="1" max="128" step="1">
+    </span>
+    </div>
+    <div class="sliderGroup">
+        Object Tint
+        <span>R: <input id="redslider" type="range" min="0" max="1" step="0.02"></span>
+        <span>G: <input id="greenslider" type="range" min="0" max="1" step="0.02"></span>
+        <span>B: <input id="blueslider" type="range" min="0" max="1" step="0.02"></span>
+    </div>
+    <div id="objcontrol" class="sliderGroup">
+        Object Position
+        <span>X: <input id="objx" type="range" min="-3" max="3" step="0.05"></span>
+        <span>Y: <input id="objy" type="range" min="-3" max="3" step="0.05"></span>
+        <span>Z: <input id="objz" type="range" min="-2" max="2" step="0.05"></span>
+    </div>
+    <div id="lightcontrol" class="sliderGroup">
+        Light Position
+        <span>X: <input id="lightx" type="range" min="-3" max="3" step="0.05"></span>
+        <span>Y: <input id="lighty" type="range" min="-3" max="3" step="0.05"></span>
+        <span>Z: <input id="lightz" type="range" min="-1" max="5" step="0.05"></span>
+    </div>
+    <div class="sliderGroup">
+        Eye Position
+        <span>X: <input id="eyex" type="range" min="-4" max="4" step="0.05"></span>
+        <span>Y: <input id="eyey" type="range" min="-4" max="4" step="0.05"></span>
+        <span>Z: <input id="eyez" type="range" min="-3" max="5" step="0.05"></span>
+        Focal Point: (0, 0, 0)
+    </div>
+</div>
+<canvas id="gl-canvas"></canvas>
+<script>
+    let hideBtn = document.getElementById("hidebutton");
+    let showBtn = document.getElementById("showbutton");
+    let intro = document.getElementById("intro");
+    hideBtn.addEventListener('click', ev => {
+        intro.hidden = true;
+        showBtn.hidden = false;
+    }, false);
+    showBtn.addEventListener('click', ev => {
+        intro.hidden = false;
+        showBtn.hidden = true;
+    }, false);
+    let vscode = document.getElementById("vscode");
+    let fscode = document.getElementById("fscode");
+    ShaderUtils.loadFile("vshader.glsl")
+        .then(src => {
+            vscode.innerText = src;
+        })
+        .catch(err => {
+            vscode.innerText = "Error: " + err;
+        });
+    ShaderUtils.loadFile("fshader.glsl")
+        .then(src => {
+            fscode.innerText = src;
+        })
+        .catch(err => {
+            fscode.innerText = "Error: " + err;
+        });
+</script>
+</body>
+</html>

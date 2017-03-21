@@ -1,0 +1,136 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 11pt;
+    background: #d6d9ce;
+}
+
+blockquote {
+    border-radius: 8px;
+    border: 1px solid #727272;
+    padding: 8px;
+    background: white;
+}
+
+div.float {
+    position: fixed;
+    top: 3px;
+    right: 3px;
+    width: 8em;
+    background: #09C;
+    color : white;
+
+    text-align: center;
+    font-weight: bold;
+    font-size: 75%;
+}
+
+div.float a { display: block; border: thin outset #630; }
+div.float a:link { text-decoration: none; color: white; }
+div.float a:visited { text-decoration: none; color: white; }
+div.float a:hover { background:white; color: black; }
+
+.rmargin {
+    margin-right: 15em;
+    text-align:justify;
+}
+
+.marginpar {
+    float:right;
+    margin-right: -15em;
+    width: 13em;
+    background: OldLace;
+    padding: 5px;
+    text-align:left;
+    border: 1px dashed Peru;
+    font-size: smaller;
+}
+
+.code {
+    background:Lavender;
+    border:1px dashed #333;
+    padding:10px;
+}
+
+.javacode {
+    background-color: LavenderBlush;
+    border: 1px solid DodgerBlue;
+    font-size:90%;
+    padding-right:10px;
+    padding-left:2px;
+}
+
+.cppcode {
+    background-color: Ivory;
+    border: 1px solid Maroon;
+    font-size:90%;
+    padding-right:10px;
+    padding-left:2px;
+}
+
+.tt {
+    font-family:Courier;
+}
+
+.question {
+    background: #8BC34A;
+    border-left: 2px solid #393;
+}
+
+.activity {
+    border-left:2px solid Burlywood;
+    list-style-type: upper-alpha;
+}
+
+.unixcmd {
+    font-family: monospace;
+    background-color: #eee;
+    border: 1px dashed #000;
+    white-space: pre-line;
+    white-space-collapse: discard;
+    margin-right:10em;
+    padding: 5px;
+}
+
+.console {
+    font-family: monospace;
+    background-color: #111;
+    color: white;
+    padding: 8px;
+    border-radius: 16px;
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
+    -o-border-radius: 16px;
+}
+
+.boxed {
+    border: 1px dashed #aaa;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.experimental {
+    /* white on teal background */
+    color: black;
+    background-color: #B2DFDB;
+    border: 1px solid #00796B;
+    padding: 8px;
+    margin: 32px;
+
+}
+
+h2 {
+    background-color: #CDDC39;
+    border-bottom: 3px solid #689F38;
+    border-top: 1px solid #999;
+    margin-right: 0px;
+    padding-left: 5px;
+    margin-left: 0px;
+}
+
+h3 {
+    border-bottom: 2px solid #727272;
+}
+
+.strikeout {
+    text-decoration:line-through;
+}
