@@ -44,8 +44,8 @@ class Cone extends GeometricObject {
                 /* the first three floats are 3D (x,y,z) position */
                 this.vertices.push (x, y, stackHeight); /* perimeter of base */
 
-                vec3.set(n1, -Math.sin(angle), Math.cos(angle), 0);
-                vec3.set(n2, -Math.sin(angle) * Math.cos(angle), -Math.sin(angle) * Math.sin(angle), Math.cos(angle));
+                vec3.set(n1, -1, -1, 1);
+                vec3.set(n2, Math.sin(angle), -Math.cos(angle), 1);
 
                 vec3.cross (norm, n1, n2);
                 vec3.normalize(norm, norm);
@@ -59,7 +59,7 @@ class Cone extends GeometricObject {
                     y + this.NORMAL_SCALE * norm[1],
                     stackHeight + this.NORMAL_SCALE * norm[2], 1, 1, 1);
 
-                vec3.lerp (randColor, col1, col2, Math.random()); /* linear interpolation between two colors */
+                //vec3.lerp (randColor, col1, col2, Math.random()); /* linear interpolation between two colors */
                 /* the next three floats are RGB */
                 //this.vertices.push(randColor[0], randColor[1], randColor[2]);
             }

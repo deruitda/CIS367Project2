@@ -8,36 +8,61 @@ class Cylinder extends GeometricObject {
         super(gl);
         if (typeof col1 === "undefined") col1 = vec3.fromValues(0xff/255, 0x59/255, 0x59/255);
         if (typeof col2 === "undefined") col2 = vec3.fromValues(0xFF/255, 0xC5/255, 0x6C/255);
-        let vertices = [];
+        this.vertices = [];
+        var normalLines = [];
+        var n1 = vec3.create();
+        var n2 = vec3.create();
+        var norm = vec3.create();
+
         let randColor = vec3.create();
         this.vbuff = gl.createBuffer();
 
         /* create the top points */
-        vertices.push(0,0,height/2);
+        this.vertices.push(0,0,height/2);
         vec3.lerp (randColor, col1, col2, Math.random()); /* linear interpolation between two colors */
-        vertices.push(randColor[0], randColor[1], randColor[2]);
+        this.vertices.push(randColor[0], randColor[1], randColor[2]);
         for (let k = 0; k < subDiv; k++) {
             let angle = k * 2 * Math.PI / subDiv;
             let x = topRadius * Math.cos (angle);
             let y = topRadius * Math.sin (angle);
-            vertices.push (x, y, height/2); /* perimeter */
-            vec3.lerp (randColor, col1, col2, Math.random()); /* linear interpolation between two colors */
-            vertices.push(randColor[0], randColor[1], randColor[2]);
+            this.vertices.push (x, y, height/2); /* perimeter */
+
+            vec3.set(n1, -Math.sin(angle), Math.cos(angle), 0);
+            vec3.set(n2, -Math.sin(angle) * Math.cos(angle), -Math.sin(angle) * Math.sin(angle), Math.cos(angle));
+
+            vec3.cross (norm, n1, n2);
+            vec3.normalize(norm, norm);
+
+            this.vertices.push (norm[0], norm[1], norm[2]);
+            normalLines.push(x, y, height, 1, 1, 1);  /* (x,y,z)   (r,g,b) */
+            normalLines.push (
+                x + this.NORMAL_SCALE * norm[0],
+                y + this.NORMAL_SCALE * norm[1],
+                height + this.NORMAL_SCALE * norm[2], 1, 1, 1);
+            //vec3.lerp (randColor, col1, col2, Math.random()); /* linear interpolation between two colors */
+            //this.vertices.push(randColor[0], randColor[1], randColor[2]);
         }
+
+        this.normalCount = 2 * subDiv;
         /* create the bottom points */
-        vertices.push(0,0, -height/2);
+        this.vertices.push(0,0, -height/2);
         vec3.lerp (randColor, col1, col2, Math.random()); /* linear interpolation between two colors */
-        vertices.push(randColor[0], randColor[1], randColor[2]);
+        this.vertices.push(randColor[0], randColor[1], randColor[2]);
         for (let k = 0; k < subDiv; k++) {
             let angle = k * 2 * Math.PI / subDiv;
             let x = botRadius * Math.cos (angle);
             let y = botRadius * Math.sin (angle);
-            vertices.push (x, y, -height/2); /* perimeter */
+            this.vertices.push (x, y, -height/2); /* perimeter */
             vec3.lerp (randColor, col1, col2, Math.random()); /* linear interpolation between two colors */
-            vertices.push(randColor[0], randColor[1], randColor[2]);
+            this.vertices.push(randColor[0], randColor[1], randColor[2]);
         }
+
+        this.nbuff = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.nbuff);
+        gl.bufferData(gl.ARRAY_BUFFER, Float32Array.from(normalLines), gl.STATIC_DRAW);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vbuff);
-        gl.bufferData(gl.ARRAY_BUFFER, Float32Array.from(vertices), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, Float32Array.from(this.vertices), gl.STATIC_DRAW);
 
         // Generate index for top circle
         let topIndex = [];
