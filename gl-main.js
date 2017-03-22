@@ -337,9 +337,7 @@ function render() {
         timestamp = now;
         var treespin = elapse * (angular_speed_tree / 60) * Math.PI * 2;
         treeCF[13] -= 0.01;
-        //mat4.translate(treeCF, treeCF, vec3.fromValues(-(treespin*.3), 0, 0));
         mat4.rotateZ(treeCF, treeCF, treespin);
-        //mat4.translate(treeCF, treeCF, vec3.fromValues(0, (treespin*.3), 0));
 
     }
     requestAnimationFrame(render);
