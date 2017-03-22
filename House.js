@@ -3,8 +3,8 @@
  */
 class House {
     constructor(gl){
-        var coneX = 0.36;
-        var coneY = -.05;
+        var coneX = 1.22;
+        var coneY = .55;
         var coneZ = 0;
         var size = .9;
         var subDiv =20;
@@ -14,8 +14,8 @@ class House {
         var coneRad = .5;
         var coneDiv = 4;
         var coneStax = 1000;
-        var cubeX = .5;
-        var cubeY = -.5;
+        var cubeX = 1.7;
+        var cubeY = 0.5;
         var cubeZ = 0;
 
         var grey1 = vec3.fromValues(0.329412, 0.329412, 0.45);

@@ -5,7 +5,7 @@
 var gl;
 var glCanvas;
 var orthoProjMat, persProjMat, viewMat, viewMatInverse, topViewMat,topViewMatInverse, normalMat;
-var ringCF, lightCF, eyePos, treeCF;
+var ringCF, lightCF, eyePos, treeCF, treeCF2, houseCF;
 var axisBuff, tmpMat;
 var globalAxes;
 
@@ -21,7 +21,10 @@ const IDENTITY = mat4.create();
 var timestamp;
 var torus, lineBuff, normBuff, objTint, pointLight;
 var tree;
+var tree2;
+var house;
 var treefall;
+var houseneedrot = true;
 const angular_speed_tree = 15;
 var shaderProg, redrawNeeded, showNormal, showLightVectors;
 var lightingComponentEnabled = [true, true, true];
@@ -151,6 +154,8 @@ function main() {
             topViewMatInverse = mat4.create();
             ringCF = mat4.create();
             treeCF = mat4.create();
+            treeCF2 = mat4.create();
+            houseCF = mat4.create();
             normalMat = mat3.create();
             lightCF = mat4.create();
             tmpMat = mat4.create();
@@ -197,6 +202,8 @@ function main() {
             gl.uniform3iv (isEnabledUnif, lightingComponentEnabled);
             torus = new Torus(gl, 1.0, 0.3, 36, 24);
             tree = new Tree(gl, 0, 0, 0);
+            tree2 = new Tree(gl, 0.5, 1, 0);
+            house = new House(gl);
             var yellow = vec3.fromValues(1.0, 1.0, 0.0);
             var orange = vec3.fromValues(1.0, 0.8, 0.0);
             pointLight = new UniSphere(gl, .4, 7, yellow, orange);
@@ -370,6 +377,28 @@ function drawScene() {
         tree.draw(posAttr, normalAttr, modelUnif, treeCF);
     }
 
+    if (typeof tree2 !== 'undefined') {
+        /* calculate normal matrix from ringCF */
+        gl.uniform1i (useLightingUnif, true);
+        gl.disableVertexAttribArray(colAttr);
+        gl.enableVertexAttribArray(normalAttr);
+        tree2.draw(posAttr, normalAttr, modelUnif, treeCF2);
+    }
+
+    if (typeof house !== 'undefined') {
+        /* calculate normal matrix from ringCF */
+        gl.uniform1i (useLightingUnif, true);
+        gl.disableVertexAttribArray(colAttr);
+        gl.enableVertexAttribArray(normalAttr);
+       // objTint = vec3.fromValues(0.184314, 0.309804, 0.184314);
+        //gl.uniform3fv(objTintUnif, objTint);
+        house.draw(posAttr, normalAttr, modelUnif, houseCF);
+        if(houseneedrot){
+            mat4.rotateX(houseCF, houseCF, Math.PI/2);
+            houseneedrot = false;
+        }
+    }
+
 }
 
 function draw3D() {
@@ -403,6 +432,38 @@ function draw3D() {
         if (showLightVectors){
             tree.cone1.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, treeCF);
             tree.cone2.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, treeCF);
+        }
+
+    }
+
+    if (typeof tree2 !== 'undefined') {
+        gl.uniform1i(useLightingUnif, false);
+        gl.disableVertexAttribArray(normalAttr);
+        gl.enableVertexAttribArray(colAttr);
+        if (showNormal){
+            tree2.cone1.drawNormal(posAttr, colAttr, modelUnif, treeCF2);
+            tree2.cone2.drawNormal(posAttr, colAttr, modelUnif, treeCF2);
+        }
+
+        if (showLightVectors){
+            tree2.cone1.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, treeCF2);
+            tree2.cone2.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, treeCF2);
+        }
+
+    }
+
+    if (typeof house !== 'undefined') {
+        gl.uniform1i(useLightingUnif, false);
+        gl.disableVertexAttribArray(normalAttr);
+        gl.enableVertexAttribArray(colAttr);
+        if (showNormal){
+            //tree.cone1.drawNormal(posAttr, colAttr, modelUnif, houseCF);
+            //tree.cone2.drawNormal(posAttr, colAttr, modelUnif, houseCF);
+        }
+
+        if (showLightVectors){
+            //tree.cone1.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, houseCF);
+            //tree.cone2.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, houseCF);
         }
 
     }
