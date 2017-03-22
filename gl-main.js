@@ -321,7 +321,7 @@ function eyePosChanged(ev) {
 function render() {
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
         draw3D();
-        drawTopView();
+        //drawTopView();
         /* looking at the XY plane, Z-axis points towards the viewer */
         // coneSpinAngle += 1;  /* add 1 degree */
     if(treefall){
