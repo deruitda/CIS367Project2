@@ -18,8 +18,11 @@ var objAmbientUnif, objTintUnif, normalUnif, isEnabledUnif;
 var ambCoeffUnif, diffCoeffUnif, specCoeffUnif, shininessUnif;
 var lightPos, useLightingUnif;
 const IDENTITY = mat4.create();
+var timestamp;
 var torus, lineBuff, normBuff, objTint, pointLight;
 var tree;
+var treefall;
+const angular_speed_tree = 15;
 var shaderProg, redrawNeeded, showNormal, showLightVectors;
 var lightingComponentEnabled = [true, true, true];
 
@@ -199,6 +202,7 @@ function main() {
             pointLight = new UniSphere(gl, .4, 7, yellow, orange);
             globalAxes = new Axes(gl);
             redrawNeeded = true;
+            timestamp = Date.now();
             resizeHandler();
             render();
         });
@@ -315,13 +319,20 @@ function eyePosChanged(ev) {
 }
 
 function render() {
-    if (redrawNeeded) {
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
         draw3D();
         drawTopView();
         /* looking at the XY plane, Z-axis points towards the viewer */
         // coneSpinAngle += 1;  /* add 1 degree */
-        redrawNeeded = false;
+    if(treefall){
+        var now = Date.now();
+        var elapse = (now - timestamp)/1000;
+        timestamp = now;
+        var treespin = elapse * (angular_speed_tree / 60) * Math.PI * 2;
+        mat4.translate(treeCF, treeCF, vec3.fromValues(-(treespin*.3), 0, 0));
+        mat4.rotateZ(treeCF, treeCF, treespin);
+        mat4.translate(treeCF, treeCF, vec3.fromValues(0, (treespin*.3), 0));
+
     }
     requestAnimationFrame(render);
 }
@@ -406,4 +417,12 @@ function drawTopView() {
     gl.uniformMatrix3fv (normalUnif, false, normalMat);
     gl.viewport(glCanvas.width/2, 0, glCanvas.width/2, glCanvas.height);
     drawScene();
+}
+
+function timber() {
+    /* We must update the projection and view matrices in the shader */
+    this.treeTrans = mat4.create();
+    mat4.translate(treeCF, treeCF, vec3.fromValues(0, 0, .3));
+    mat4.rotateY(treeCF, treeCF, (Math.PI/2));
+    treefall = true;
 }
