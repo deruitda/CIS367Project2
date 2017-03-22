@@ -44,8 +44,8 @@ class Cone extends GeometricObject {
                 /* the first three floats are 3D (x,y,z) position */
                 this.vertices.push (x, y, stackHeight); /* perimeter of base */
 
-                vec3.set(n1, -1, -1, 1);
-                vec3.set(n2, Math.sin(angle), -Math.cos(angle), 1);
+                vec3.set(n1, curRadius*-1, curRadius*-1, curRadius);
+                vec3.set(n2, -Math.sin(angle), Math.cos(angle), 1);
 
                 vec3.cross (norm, n1, n2);
                 vec3.normalize(norm, norm);
