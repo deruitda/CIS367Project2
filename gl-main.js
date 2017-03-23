@@ -5,7 +5,7 @@
 let gl;
 let glCanvas;
 let orthoProjMat, persProjMat, viewMat, viewMatInverse, topViewMat,topViewMatInverse, normalMat;
-let ringCF, lightCF, eyePos, treeCF, treeCF2, houseCF;
+let ringCF, lightCF, eyePos, treeCF, treeCF2, houseCF, lightpostCF;
 let axisBuff, tmpMat;
 
 /* Vertex shader attribute letiables */
@@ -19,14 +19,12 @@ let lightPos, useLightingUnif;
 const IDENTITY = mat4.create();
 let timestamp;
 let lineBuff, normBuff, pointLight;
-let tree;
-let tree2;
-let house;
+let tree, tree2, house, lightpost;
 let treefall;
 let houseneedrot = true;
 const angular_speed_tree = 15;
 let shaderProg, redrawNeeded, showNormal, showLightVectors;
-let lightingComponentEnabled = [true, true, true];
+let lightingComponentEnabled = [false, false, false];
 let chosenObj;
 
 function main() {
@@ -160,6 +158,7 @@ function main() {
             treeCF = mat4.create();
             treeCF2 = mat4.create();
             houseCF = mat4.create();
+            lightpostCF = mat4.create();
             normalMat = mat3.create();
             lightCF = mat4.create();
             tmpMat = mat4.create();
@@ -205,6 +204,7 @@ function main() {
             tree = new Tree(gl, 0, 0, 0);
             tree2 = new Tree(gl, 0.5, 1, 0);
             house = new House(gl);
+            lightpost = new LightPost(gl);
             let yellow = vec3.fromValues(1.0, 1.0, 0.0);
             let orange = vec3.fromValues(1.0, 0.8, 0.0);
             pointLight = new UniSphere(gl, .4, 7, yellow, orange);
@@ -388,6 +388,20 @@ function drawScene() {
         }
     }
 
+    if (typeof lightpost !== 'undefined') {
+        /* calculate normal matrix from ringCF */
+        gl.uniform1i (useLightingUnif, true);
+        gl.disableVertexAttribArray(colAttr);
+        gl.enableVertexAttribArray(normalAttr);
+        // objTint = vec3.fromValues(0.184314, 0.309804, 0.184314);
+        //gl.uniform3fv(objTintUnif, objTint);
+        lightpost.draw(posAttr, normalAttr, modelUnif, lightpostCF);
+        // if(houseneedrot){
+        //     mat4.rotateX(lightpostCF, lightpostCF, Math.PI/2);
+        //     houseneedrot = false;
+        // }
+    }
+
 }
 
 function draw3D() {
@@ -549,8 +563,6 @@ function checkKey(e){
 
 function timber() {
     /* We must update the projection and view matrices in the shader */
-    this.treeTrans = mat4.create();
-    mat4.translate(treeCF, treeCF, vec3.fromValues(0, 0, .3));
     mat4.rotateY(treeCF, treeCF, (Math.PI/2));
     treefall = true;
 }
