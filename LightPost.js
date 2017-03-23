@@ -25,7 +25,7 @@ class LightPost {
 
         this.top = new TruncCone(gl, .3, .1, .2, div, stacks);
         this.topTrans = mat4.create();
-        mat4.translate(this.topTrans, this.topTrans, vec3.fromValues(0.8, -0.5, .8));
+        mat4.translate(this.topTrans, this.topTrans, vec3.fromValues(0.8, -0.5, .75));
         mat4.scale(this.topTrans, this.topTrans, vec3.fromValues(0.25, 0.25, .6));
         //mat4.rotateX(this.cone2Trans, this.cone2Trans, -(Math.PI/2));
 
