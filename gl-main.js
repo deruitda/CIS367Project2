@@ -493,6 +493,9 @@ function checkKey(e){
         case 'House':
             obj = houseCF;
             break;
+        case 'Lamp':
+            obj = lightpostCF;
+            break;
     }
 
     //w Y+
