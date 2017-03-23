@@ -33,6 +33,12 @@ class House {
         this.cubeScale = mat4.create();
         mat4.scale(this.cubeScale, this.cubeScale, vec3.fromValues(0.9, 0.6, 1));
         mat4.translate(this.cubeScale, this.cubeScale, vec3.fromValues(cubeX, cubeY, cubeZ))
+
+        this.door = new Door(gl);
+        this.doorTrans = mat4.create();
+        //mat4.translate(this.doorTrans, this.doorTrans, vec3.fromValues(.05, -.45, 0));
+        mat4.translate(this.doorTrans, this.doorTrans, vec3.fromValues(1.12, .25, 0));
+
         this.tmp = mat4.create();
     }
 
@@ -40,11 +46,17 @@ class House {
         gl.uniformMatrix4fv(modelUniform, false, coordFrame);
 
         this.tmp = mat4.create();
+        mat4.mul(this.tmp, coordFrame, this.doorTrans);
+        this.door.draw(vertexAttr, colorAttr, modelUniform, this.tmp);
+
+        this.tmp = mat4.create();
         mat4.mul(this.tmp, coordFrame, this.cubeScale);
+        gl.uniform3fv(objTintUnif, vec3.fromValues((255/256), (230/256), (204/256)));
         this.cube.draw(vertexAttr, colorAttr, modelUniform, this.tmp);
 
         this.tmp = mat4.create();
         mat4.mul(this.tmp, coordFrame, this.coneTrans);
+        gl.uniform3fv(objTintUnif, vec3.fromValues((166/256), (166/256), (166/256)));
         this.cone.draw(vertexAttr, colorAttr, modelUniform, this.tmp);
 
 

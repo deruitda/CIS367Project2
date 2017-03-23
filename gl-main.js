@@ -2,35 +2,39 @@
  * Created by Hans Dulimarta on 1/31/17.
  */
 
-var gl;
-var glCanvas;
-var orthoProjMat, persProjMat, viewMat, viewMatInverse, topViewMat,topViewMatInverse, normalMat;
-var ringCF, lightCF, eyePos, treeCF, treeCF2, houseCF;
-var axisBuff, tmpMat;
-var globalAxes;
+let gl;
+let glCanvas;
+let orthoProjMat, persProjMat, viewMat, viewMatInverse, topViewMat,topViewMatInverse, normalMat;
+let ringCF, lightCF, eyePos, treeCF, treeCF2, houseCF;
+let axisBuff, tmpMat;
 
-/* Vertex shader attribute variables */
-var posAttr, colAttr, normalAttr;
+/* Vertex shader attribute letiables */
+let posAttr, colAttr, normalAttr;
 
-/* Shader uniform variables */
-var projUnif, viewUnif, modelUnif, lightPosUnif;
-var objAmbientUnif, objTintUnif, normalUnif, isEnabledUnif;
-var ambCoeffUnif, diffCoeffUnif, specCoeffUnif, shininessUnif;
-var lightPos, useLightingUnif;
+/* Shader uniform letiables */
+let projUnif, viewUnif, modelUnif, lightPosUnif;
+let objAmbientUnif, objTintUnif, normalUnif, isEnabledUnif;
+let ambCoeffUnif, diffCoeffUnif, specCoeffUnif, shininessUnif;
+let lightPos, useLightingUnif;
 const IDENTITY = mat4.create();
-var timestamp;
-var torus, lineBuff, normBuff, objTint, pointLight;
-var tree;
-var tree2;
-var house;
-var treefall;
-var houseneedrot = true;
+let timestamp;
+let lineBuff, normBuff, pointLight;
+let tree;
+let tree2;
+let house;
+let treefall;
+let houseneedrot = true;
 const angular_speed_tree = 15;
-var shaderProg, redrawNeeded, showNormal, showLightVectors;
-var lightingComponentEnabled = [true, true, true];
+let shaderProg, redrawNeeded, showNormal, showLightVectors;
+let lightingComponentEnabled = [true, true, true];
+let chosenObj;
 
 function main() {
+
+    chosenObj =  document.getElementById("objects");
+    chosenObj = chosenObj.options[chosenObj.selectedIndex].value;
     glCanvas = document.getElementById("gl-canvas");
+    document.onkeydown = checkKey;
 
     let normalCheckBox = document.getElementById("shownormal");
     normalCheckBox.addEventListener('change', ev => {
@@ -159,7 +163,7 @@ function main() {
             normalMat = mat3.create();
             lightCF = mat4.create();
             tmpMat = mat4.create();
-            eyePos = vec3.fromValues(3, 2, 3);
+            eyePos = vec3.fromValues(-2.6, 2.5, 2.3);
             mat4.lookAt(viewMat,
                 eyePos,
                 vec3.fromValues(0, 0, 0), /* focal point */
@@ -192,22 +196,18 @@ function main() {
             redSlider.value = Math.random();
             greenSlider.value = Math.random();
             blueSlider.value = Math.random();
-            objTint = vec3.fromValues(redSlider.value, greenSlider.value, blueSlider.value);
-            gl.uniform3fv(objTintUnif, objTint);
             gl.uniform1f(ambCoeffUnif, ambCoeffSlider.value);
             gl.uniform1f(diffCoeffUnif, diffCoeffSlider.value);
             gl.uniform1f(specCoeffUnif, specCoeffSlider.value);
             gl.uniform1f(shininessUnif, shinySlider.value);
 
             gl.uniform3iv (isEnabledUnif, lightingComponentEnabled);
-            torus = new Torus(gl, 1.0, 0.3, 36, 24);
             tree = new Tree(gl, 0, 0, 0);
             tree2 = new Tree(gl, 0.5, 1, 0);
             house = new House(gl);
-            var yellow = vec3.fromValues(1.0, 1.0, 0.0);
-            var orange = vec3.fromValues(1.0, 0.8, 0.0);
+            let yellow = vec3.fromValues(1.0, 1.0, 0.0);
+            let orange = vec3.fromValues(1.0, 0.8, 0.0);
             pointLight = new UniSphere(gl, .4, 7, yellow, orange);
-            globalAxes = new Axes(gl);
             redrawNeeded = true;
             timestamp = Date.now();
             resizeHandler();
@@ -293,13 +293,13 @@ function lightPosChanged(ev) {
 function objPosChanged(ev) {
     switch (ev.target.id) {
         case 'objx':
-            ringCF[12] = ev.target.value;
+            treeCF[12] = ev.target.value;
             break;
         case 'objy':
-            ringCF[13] = ev.target.value;
+            treeCF[13] = ev.target.value;
             break;
         case 'objz':
-            ringCF[14] = ev.target.value;
+            treeCF[14] = ev.target.value;
             break;
     }
     redrawNeeded = true;
@@ -332,10 +332,10 @@ function render() {
         /* looking at the XY plane, Z-axis points towards the viewer */
         // coneSpinAngle += 1;  /* add 1 degree */
     if(treefall){
-        var now = Date.now();
-        var elapse = (now - timestamp)/1000;
+        let now = Date.now();
+        let elapse = (now - timestamp)/1000;
         timestamp = now;
-        var treespin = elapse * (angular_speed_tree / 60) * Math.PI * 2;
+        let treespin = elapse * (angular_speed_tree / 60) * Math.PI * 2;
         treeCF[13] -= 0.01;
         mat4.rotateZ(treeCF, treeCF, treespin);
 
@@ -355,19 +355,9 @@ function drawScene() {
     gl.vertexAttribPointer(colAttr, 3, gl.FLOAT, false, 24, 12);
     gl.drawArrays(gl.LINE_STRIP, 0, 4);
 
-    /* draw the global coordinate frame */
-    globalAxes.draw(posAttr, colAttr, modelUnif, IDENTITY);
-
     /* Draw the light source (a sphere) using its own coordinate frame */
     pointLight.draw(posAttr, colAttr, modelUnif, lightCF);
 
-    if (typeof torus !== 'undefined') {
-        /* calculate normal matrix from ringCF */
-        gl.uniform1i (useLightingUnif, true);
-        gl.disableVertexAttribArray(colAttr);
-        gl.enableVertexAttribArray(normalAttr);
-        //torus.draw(posAttr, normalAttr, modelUnif, ringCF);
-    }
     if (typeof tree !== 'undefined') {
         /* calculate normal matrix from ringCF */
         gl.uniform1i (useLightingUnif, true);
@@ -479,6 +469,84 @@ function drawTopView() {
     drawScene();
 }
 
+function checkKey(e){
+    chosenObj =  document.getElementById("objects");
+    chosenObj = chosenObj.options[chosenObj.selectedIndex].value;
+    e = e || window.event;
+    let obj;
+    switch (chosenObj) {
+        case 'Tree1':
+            obj = treeCF;
+            break;
+        case 'Tree2':
+            obj = treeCF2;
+            break;
+        case 'House':
+            obj = houseCF;
+            break;
+    }
+
+    //w Y+
+    switch (e.keyCode){
+        //W Y+
+        case 87:
+            obj[14] += .1;
+            break;
+        //s Y-
+        case 83:
+            obj[14] -= .1;
+            break;
+        //a X+
+        case 65:
+            obj[13] += .1;
+            break;
+        //d X-
+        case 68:
+            obj[13] -= .1;
+            break;
+        //Q Z+
+        case 81:
+            obj[12] += .1;
+            break;
+        //E Z-
+        case 69:
+            obj[12] -= .1;
+            break;
+        //Eye X+
+        case 37:
+            eyePos[0] -= .1;
+            break;
+        //Eye X-
+        case 39:
+            eyePos[0] += .1;
+            break;
+        //Eye Y+
+        case 38:
+            eyePos[1] += .1;
+            break;
+        //Eye Y-
+        case 40:
+            eyePos[1] -= .1;
+            break;
+        //Eye Z+
+        case 49:
+            eyePos[2] += .1;
+            break;
+        //Eye Z-
+        case 50:
+            eyePos[2] -= .1;
+            break;
+    }
+
+    mat4.lookAt(viewMat,
+        eyePos,
+        vec3.fromValues(0, 0, 0), /* focal point */
+        vec3.fromValues(0, 0, 1)); /* up */
+    mat4.invert (viewMatInverse, viewMat);
+    redrawNeeded = true;
+
+}
+
 function timber() {
     /* We must update the projection and view matrices in the shader */
     this.treeTrans = mat4.create();
@@ -486,3 +554,5 @@ function timber() {
     mat4.rotateY(treeCF, treeCF, (Math.PI/2));
     treefall = true;
 }
+
+

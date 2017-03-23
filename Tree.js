@@ -41,14 +41,17 @@ class Tree {
 
         this.tmp = mat4.create();
         mat4.mul(this.tmp, coordFrame, this.cylTrans);
+        gl.uniform3fv(objTintUnif, vec3.fromValues((102/256), (51/256), (0/256)));
         this.truncone.draw(vertexAttr, colorAttr, modelUniform, this.tmp);
 
         this.tmp = mat4.create();
         mat4.mul(this.tmp, coordFrame, this.cone1Trans);
+        gl.uniform3fv(objTintUnif, vec3.fromValues((4/256), (100/256), (0/256)));
         this.cone1.draw(vertexAttr, colorAttr, modelUniform, this.tmp);
 
         this.tmp = mat4.create();
         mat4.mul(this.tmp, coordFrame, this.cone2Trans);
+        gl.uniform3fv(objTintUnif, vec3.fromValues((4/256), (143/256), (0/256)));
         this.cone2.draw(vertexAttr, colorAttr, modelUniform, this.tmp);
     }
 }
