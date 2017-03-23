@@ -69,7 +69,7 @@ class LightPost {
 
         this.tmp = mat4.create();
         mat4.mul(this.tmp, coordFrame, this.lightTrans);
-        gl.uniform3fv(objTintUnif, vec3.fromValues(1.0, 1.0, 0));
+        gl.uniform3fv(objTintUnif, vec3.fromValues((255/256), (255/256), (51/256)));
         this.pointLight.draw(vertexAttr, colorAttr, modelUniform, this.tmp);
     }
 }

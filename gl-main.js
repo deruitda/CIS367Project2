@@ -20,11 +20,13 @@ const IDENTITY = mat4.create();
 let timestamp;
 let lineBuff, normBuff, pointLight;
 let tree, tree2, house, lightpost;
-let treefall;
+let isChopped;
+let isMoving;
 let houseneedrot = true;
-const angular_speed_tree = 15;
+let angular_speed_tree = 15;
+let tranSpeed = .05;
 let shaderProg, redrawNeeded, showNormal, showLightVectors;
-let lightingComponentEnabled = [false, false, false];
+let lightingComponentEnabled = [true, true, true];
 let chosenObj;
 
 function main() {
@@ -33,6 +35,7 @@ function main() {
     chosenObj = chosenObj.options[chosenObj.selectedIndex].value;
     glCanvas = document.getElementById("gl-canvas");
     document.onkeydown = checkKey;
+    isMoving = false;
 
     let normalCheckBox = document.getElementById("shownormal");
     normalCheckBox.addEventListener('change', ev => {
@@ -86,19 +89,6 @@ function main() {
         redrawNeeded = true;
     }, false);
     shinySlider.value = Math.floor(1 + Math.random() * shinySlider.max);
-    let redSlider = document.getElementById("redslider");
-    let greenSlider = document.getElementById("greenslider");
-    let blueSlider = document.getElementById("blueslider");
-    redSlider.addEventListener('input', colorChanged, false);
-    greenSlider.addEventListener('input', colorChanged, false);
-    blueSlider.addEventListener('input', colorChanged, false);
-
-    let objxslider = document.getElementById("objx");
-    let objyslider = document.getElementById("objy");
-    let objzslider = document.getElementById("objz");
-    objxslider.addEventListener('input', objPosChanged, false);
-    objyslider.addEventListener('input', objPosChanged, false);
-    objzslider.addEventListener('input', objPosChanged, false);
 
     let lightxslider = document.getElementById("lightx");
     let lightyslider = document.getElementById("lighty");
@@ -192,9 +182,6 @@ function main() {
             gl.bindBuffer(gl.ARRAY_BUFFER, lineBuff);
             gl.bufferData(gl.ARRAY_BUFFER, Float32Array.from(vertices), gl.STATIC_DRAW);
 
-            redSlider.value = Math.random();
-            greenSlider.value = Math.random();
-            blueSlider.value = Math.random();
             gl.uniform1f(ambCoeffUnif, ambCoeffSlider.value);
             gl.uniform1f(diffCoeffUnif, diffCoeffSlider.value);
             gl.uniform1f(specCoeffUnif, specCoeffSlider.value);
@@ -331,12 +318,12 @@ function render() {
         //drawTopView();
         /* looking at the XY plane, Z-axis points towards the viewer */
         // coneSpinAngle += 1;  /* add 1 degree */
-    if(treefall){
+    if(isChopped && isMoving){
         let now = Date.now();
         let elapse = (now - timestamp)/1000;
         timestamp = now;
         let treespin = elapse * (angular_speed_tree / 60) * Math.PI * 2;
-        treeCF[13] -= 0.01;
+        treeCF[13] -= tranSpeed;
         mat4.rotateZ(treeCF, treeCF, treespin);
 
     }
@@ -550,6 +537,26 @@ function checkKey(e){
         case 50:
             eyePos[2] -= .1;
             break;
+        //RotSp+
+        case 72:
+            angular_speed_tree += 1;
+            break;
+        //RotSp-
+        case 71:
+            angular_speed_tree -= 1;
+            break;
+        //TranSp+
+        case 89:
+            tranSpeed += .01;
+            break;
+        //TranSp-
+        case 84:
+            tranSpeed -= .01;
+            break;
+        //Pause
+        case 80:
+            isMoving = !isMoving;
+            break;
     }
 
     mat4.lookAt(viewMat,
@@ -564,7 +571,7 @@ function checkKey(e){
 function timber() {
     /* We must update the projection and view matrices in the shader */
     mat4.rotateY(treeCF, treeCF, (Math.PI/2));
-    treefall = true;
+    isChopped = true;
 }
 
 
