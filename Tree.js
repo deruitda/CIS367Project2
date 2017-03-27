@@ -1,6 +1,3 @@
-/**
- * Created by dannyd1221 on 3/11/2017.
- */
 class Tree {
     constructor(gl, treeX, treeY, treeZ){
         var cylX = -0.7;
@@ -21,13 +18,13 @@ class Tree {
 
         var green1 = vec3.fromValues(0.184314, 0.309804, 0.184314);
         var green2 = vec3.fromValues(0.184314, 0.54, 0.184314);
-        this.cone1 = new Cone(gl, 0.3, 0.5, 100, stacks, green1, green2);
+        this.cone1 = new TruncCone(gl, 0.3, 0.0, 0.5, 100, stacks, green1, green2);
         this.cone1Trans = mat4.create();
         mat4.translate(this.cone1Trans, this.cone1Trans, vec3.fromValues(treeX, treeY, treeZ+.2));
         mat4.scale(this.cone1Trans, this.cone1Trans, vec3.fromValues(0.9, .9, 1));
         //mat4.rotateX(this.cone1Trans, this.cone1Trans, -(Math.PI/2));
 
-        this.cone2 = new Cone(gl, 0.3, 0.5, 100, stacks, green1, green2);
+        this.cone2 = new TruncCone(gl, 0.3, 0.0, 0.5, 100, stacks, green1, green2);
         this.cone2Trans = mat4.create();
         mat4.translate(this.cone2Trans, this.cone2Trans, vec3.fromValues(treeX, treeY, treeZ+.4));
         mat4.scale(this.cone2Trans, this.cone2Trans, vec3.fromValues(0.8, .8, 1));

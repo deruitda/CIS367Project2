@@ -1,15 +1,5 @@
 class Cube extends GeometricObject {
-    /**
-     * Create a 3D cube with a height/width/depth of the size given
-     * and divided into equal parts
-     *
-     * @param {Object} gl     the current WebGL context
-     * @param {Number} size   height/width/depth of the cube
-     * @param {Number} div number of divisions each face has
-     * @param {vec3}   col1   color #1 to use
-     * @param {vec3}   col2   color #2 to use
-     */
-    constructor (gl, size, div, col1, col2) {
+    constructor(gl, size, div, col1, col2) {
         super(gl);
         this.temp = mat4.create();
         this.coordFrame = mat4.create();
@@ -83,7 +73,7 @@ class Cube extends GeometricObject {
             vec3.rotateY(normalVector, normalVector, origin, Math.PI / 2);
         }
 
-        normalVector = vec3.fromValues(0, 1, 0);
+        normalVector = vec3.fromValues(0, -1, 0);
         // Rotate around the X axis for the remaining 2 longitudinal sides
         for (let i = 0; i < 2; i++) {
             firstFaceVertices.forEach((vertex) => {
@@ -149,5 +139,7 @@ class Cube extends GeometricObject {
                 }
             }
         }
+
+
     }
-    }
+}

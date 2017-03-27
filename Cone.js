@@ -1,17 +1,5 @@
-/**
- * Created by Hans Dulimarta on 2/1/17.
- */
+
 class Cone extends GeometricObject {
-    /**
-     * Create a 3D cone with tip at the Z+ axis and base on the XY plane
-     * @param {Object} gl         the current WebGL context
-     * @param {Number} radius     radius of the cone base
-     * @param {Number} height     height of the cone
-     * @param {Number} div        number of radial division of the cone base
-     * @param {Number} stacks     number of vertical stacks the cone has
-     * @param {vec3}   col1       color #1 to use
-     * @param {vec3}   col2       color #2 to use
-     */
     constructor (gl, radius, height, div, stacks, col1, col2) {
         super(gl);
         /* if colors are undefined, generate random colors */

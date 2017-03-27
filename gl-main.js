@@ -37,16 +37,6 @@ function main() {
     document.onkeydown = checkKey;
     isMoving = false;
 
-    let normalCheckBox = document.getElementById("shownormal");
-    normalCheckBox.addEventListener('change', ev => {
-        showNormal = ev.target.checked;
-        redrawNeeded = true;
-    }, false);
-    let lightCheckBox = document.getElementById("showlightvector");
-    lightCheckBox.addEventListener('change', ev => {
-        showLightVectors = ev.target.checked;
-        redrawNeeded = true;
-    }, false);
     let ambientCheckBox = document.getElementById("enableAmbient");
     ambientCheckBox.addEventListener('change', ev => {
         lightingComponentEnabled[0] = ev.target.checked;
@@ -408,63 +398,7 @@ function draw3D() {
     gl.uniformMatrix3fv (normalUnif, false, normalMat);
     gl.viewport(0, 0, glCanvas.width/2, glCanvas.height);
     drawScene();
-    if (typeof torus !== 'undefined') {
-        gl.uniform1i(useLightingUnif, false);
-        gl.disableVertexAttribArray(normalAttr);
-        gl.enableVertexAttribArray(colAttr);
-        //if (showNormal)
-            //torus.drawNormal(posAttr, colAttr, modelUnif, ringCF);
-        //if (showLightVectors)
-            //torus.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, ringCF);
-    }
 
-    if (typeof tree !== 'undefined') {
-        gl.uniform1i(useLightingUnif, false);
-        gl.disableVertexAttribArray(normalAttr);
-        gl.enableVertexAttribArray(colAttr);
-        if (showNormal){
-            tree.cone1.drawNormal(posAttr, colAttr, modelUnif, treeCF);
-            tree.cone2.drawNormal(posAttr, colAttr, modelUnif, treeCF);
-        }
-
-        if (showLightVectors){
-            tree.cone1.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, treeCF);
-            tree.cone2.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, treeCF);
-        }
-
-    }
-
-    if (typeof tree2 !== 'undefined') {
-        gl.uniform1i(useLightingUnif, false);
-        gl.disableVertexAttribArray(normalAttr);
-        gl.enableVertexAttribArray(colAttr);
-        if (showNormal){
-            tree2.cone1.drawNormal(posAttr, colAttr, modelUnif, treeCF2);
-            tree2.cone2.drawNormal(posAttr, colAttr, modelUnif, treeCF2);
-        }
-
-        if (showLightVectors){
-            tree2.cone1.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, treeCF2);
-            tree2.cone2.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, treeCF2);
-        }
-
-    }
-
-    if (typeof house !== 'undefined') {
-        gl.uniform1i(useLightingUnif, false);
-        gl.disableVertexAttribArray(normalAttr);
-        gl.enableVertexAttribArray(colAttr);
-        if (showNormal){
-            //tree.cone1.drawNormal(posAttr, colAttr, modelUnif, houseCF);
-            //tree.cone2.drawNormal(posAttr, colAttr, modelUnif, houseCF);
-        }
-
-        if (showLightVectors){
-            //tree.cone1.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, houseCF);
-            //tree.cone2.drawVectorsTo(gl, lightPos, posAttr, colAttr, modelUnif, houseCF);
-        }
-
-    }
 }
 
 function drawTopView() {
