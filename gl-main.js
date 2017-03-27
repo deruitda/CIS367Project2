@@ -19,7 +19,7 @@ let lightPos, useLightingUnif;
 const IDENTITY = mat4.create();
 let timestamp;
 let lineBuff, normBuff, pointLight;
-let tree, tree2, house, lightpost;
+let tree, tree2, house, lightpost, grass;
 let isChopped;
 let isMoving;
 let houseneedrot = true;
@@ -110,7 +110,7 @@ function main() {
         .then (prog => {
             shaderProg = prog;
             gl.useProgram(prog);
-            gl.clearColor(0.3, 0.3, 0.3, 1);
+            gl.clearColor((109/256), (159/256), (242/256), 1);
             gl.enable(gl.DEPTH_TEST);    /* enable hidden surface removal */
             gl.enable(gl.CULL_FACE);     /* cull back facing polygons */
             gl.cullFace(gl.BACK);
@@ -148,6 +148,7 @@ function main() {
             treeCF = mat4.create();
             treeCF2 = mat4.create();
             houseCF = mat4.create();
+            grassCF = mat4.create();
             lightpostCF = mat4.create();
             normalMat = mat3.create();
             lightCF = mat4.create();
@@ -192,6 +193,10 @@ function main() {
             tree2 = new Tree(gl, 0.5, 1, 0);
             house = new House(gl);
             lightpost = new LightPost(gl);
+            grass = new Cube(gl, .9, 5);
+            mat4.scale(grassCF, grassCF, vec3.fromValues(4.5, 4.5, .1));
+            mat4.translate(grassCF, grassCF, vec3.fromValues(0, 0, -.4));
+
             let yellow = vec3.fromValues(1.0, 1.0, 0.0);
             let orange = vec3.fromValues(1.0, 0.8, 0.0);
             pointLight = new UniSphere(gl, .4, 7, yellow, orange);
@@ -211,8 +216,8 @@ function resizeHandler() {
         mat4.perspective(persProjMat,
             Math.PI/3,  /* 60 degrees vertical field of view */
             1/ratio,    /* must be width/height ratio */
-            1,          /* near plane at Z=1 */
-            20);        /* far plane at Z=20 */
+            1,          /* near grass at Z=1 */
+            20);        /* far grass at Z=20 */
         redrawNeeded = true;
     } else {
         alert ("Window is too narrow!");
@@ -316,7 +321,7 @@ function render() {
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
         draw3D();
         //drawTopView();
-        /* looking at the XY plane, Z-axis points towards the viewer */
+        /* looking at the XY grass, Z-axis points towards the viewer */
         // coneSpinAngle += 1;  /* add 1 degree */
     if(isChopped && isMoving){
         let now = Date.now();
@@ -380,13 +385,16 @@ function drawScene() {
         gl.uniform1i (useLightingUnif, true);
         gl.disableVertexAttribArray(colAttr);
         gl.enableVertexAttribArray(normalAttr);
-        // objTint = vec3.fromValues(0.184314, 0.309804, 0.184314);
-        //gl.uniform3fv(objTintUnif, objTint);
         lightpost.draw(posAttr, normalAttr, modelUnif, lightpostCF);
-        // if(houseneedrot){
-        //     mat4.rotateX(lightpostCF, lightpostCF, Math.PI/2);
-        //     houseneedrot = false;
-        // }
+    }
+
+    if (typeof grass !== 'undefined') {
+        /* calculate normal matrix from ringCF */
+        gl.uniform1i (useLightingUnif, true);
+        gl.disableVertexAttribArray(colAttr);
+        gl.enableVertexAttribArray(normalAttr);
+        gl.uniform3fv(objTintUnif, vec3.fromValues((65/256), (168/256), (47/256)));
+        grass.draw(posAttr, normalAttr, modelUnif, grassCF);
     }
 
 }
@@ -485,6 +493,9 @@ function checkKey(e){
         case 'House':
             obj = houseCF;
             break;
+        case 'Lamp':
+            obj = lightpostCF;
+            break;
     }
 
     //w Y+
@@ -570,6 +581,8 @@ function checkKey(e){
 
 function timber() {
     /* We must update the projection and view matrices in the shader */
+    if(isChopped)
+        return;
     mat4.rotateY(treeCF, treeCF, (Math.PI/2));
     isChopped = true;
 }
